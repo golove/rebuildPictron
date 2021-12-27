@@ -1,10 +1,13 @@
-import {app, BrowserWindow} from 'electron';
-import {join} from 'path';
-import {URL} from 'url';
+import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron';
+import { join } from 'path';
+import { URL } from 'url';
 import './security-restrictions';
-
+// import getPage from './request';
 const isSingleInstance = app.requestSingleInstanceLock();
 const isDevelopment = import.meta.env.MODE === 'development';
+
+// const res = getPage('https://k7.hfv942p0.org/pw/');
+// console.log(res);
 
 if (!isSingleInstance) {
   app.quit();
@@ -13,28 +16,78 @@ if (!isSingleInstance) {
 
 app.disableHardwareAcceleration();
 
-// Install "Vue.js devtools"
+// Install 'Vue.js devtools'
 if (isDevelopment) {
-  app.whenReady()
+  app
+    .whenReady()
     .then(() => import('electron-devtools-installer'))
-    .then(({default: installExtension, VUEJS3_DEVTOOLS}) => installExtension(VUEJS3_DEVTOOLS, {
-      loadExtensionOptions: {
-        allowFileAccess: true,
-      },
-    }))
-    .catch(e => console.error('Failed install extension:', e));
+    .then(({ default: installExtension, VUEJS3_DEVTOOLS }) =>
+      installExtension(VUEJS3_DEVTOOLS, {
+        loadExtensionOptions: {
+          allowFileAccess: true,
+        },
+      }),
+    )
+    .catch((e) => console.error('Failed install extension:', e));
 }
 
 let mainWindow: BrowserWindow | null = null;
 
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
-    show: false, // Use 'ready-to-show' event to show window
+    // show: false, // Use 'ready-to-show' event to show window
+    minWidth: 1100,
+    minHeight: 700,
+    frame: false,
+    // titleBarStyle:'hidden',
+    // titleBarOverlay: {
+    //   color: '#e6e6e6',
+    // },
+
+    // transparent: true,
+    // trafficLightPosition: { x: 10, y: 10 },
     webPreferences: {
       nativeWindowOpen: true,
       webviewTag: false, // The webview tag is not recommended. Consider alternatives like iframe or Electron's BrowserView. https://www.electronjs.org/docs/latest/api/webview-tag#warning
       preload: join(__dirname, '../../preload/dist/index.cjs'),
     },
+  });
+
+  ipcMain.handle('dark-mode:toggle', () => {
+    if (nativeTheme.shouldUseDarkColors) {
+      nativeTheme.themeSource = 'light';
+    } else {
+      nativeTheme.themeSource = 'dark';
+    }
+    return nativeTheme.shouldUseDarkColors;
+  });
+
+  ipcMain.handle('dark-mode:system', () => {
+    nativeTheme.themeSource = 'system';
+    return nativeTheme.shouldUseDarkColors;
+  });
+
+  ipcMain.handle('imageData', () => {
+    return [{ name: 'ziyu' }];
+  });
+
+  ipcMain.on('windowTool', (event, content) => {
+    if(mainWindow===null) {
+      return;
+    }else{
+      if (content === 'min') {
+        mainWindow.minimize();
+      } else if (content === 'max') {
+        if (mainWindow.isMaximized()) {
+          mainWindow.unmaximize();
+        } else {
+          mainWindow.maximize();
+        }
+      } else {
+        mainWindow.close();
+      }
+    }
+   
   });
 
   /**
@@ -56,15 +109,21 @@ const createWindow = async () => {
    * Vite dev server for development.
    * `file://../renderer/index.html` for production and test
    */
-  const pageUrl = isDevelopment && import.meta.env.VITE_DEV_SERVER_URL !== undefined
-    ? import.meta.env.VITE_DEV_SERVER_URL
-    : new URL('../renderer/dist/index.html', 'file://' + __dirname).toString();
-
+  const pageUrl =
+    isDevelopment && import.meta.env.VITE_DEV_SERVER_URL !== undefined
+      ? import.meta.env.VITE_DEV_SERVER_URL
+      : new URL(
+        '../renderer/dist/index.html',
+        'file://' + __dirname,
+      ).toString();
 
   await mainWindow.loadURL(pageUrl);
 };
 
-
+ipcMain.on('renderMsg', (event, arg) => {
+  console.log(arg);
+  event.sender.send('ipcMainMsg', 'pong');
+});
 
 app.on('second-instance', () => {
   // Someone tried to run a second instance, we should focus our window.
@@ -74,24 +133,22 @@ app.on('second-instance', () => {
   }
 });
 
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-
-app.whenReady()
+app
+  .whenReady()
   .then(createWindow)
   .catch((e) => console.error('Failed create window:', e));
 
-
 // Auto-updates
 if (import.meta.env.PROD) {
-  app.whenReady()
+  app
+    .whenReady()
     .then(() => import('electron-updater'))
-    .then(({autoUpdater}) => autoUpdater.checkForUpdatesAndNotify())
+    .then(({ autoUpdater }) => autoUpdater.checkForUpdatesAndNotify())
     .catch((e) => console.error('Failed check updates:', e));
 }
-

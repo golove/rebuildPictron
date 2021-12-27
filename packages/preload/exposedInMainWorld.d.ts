@@ -11,4 +11,8 @@ interface Window {
      * window.nodeCrypto('data')
      */
     readonly nodeCrypto: { sha256sum(data: import("crypto").BinaryLike): string; };
+    
+    readonly ipcRenderer: Electron.IpcRenderer;
+    darkMode;
+    imageData
 }

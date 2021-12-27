@@ -4,3 +4,5 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>;
   export default component;
 }
+declare module 'vue-masonry'
+declare module 'vue-masonry/src/masonry-vue3.plugin'

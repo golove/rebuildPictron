@@ -1,4 +1,4 @@
-import {contextBridge} from 'electron';
+import {contextBridge, ipcRenderer} from 'electron';
 
 import type {BinaryLike} from 'crypto';
 import {createHash} from 'crypto';
@@ -38,3 +38,19 @@ contextBridge.exposeInMainWorld('nodeCrypto', {
     return hash.digest('hex');
   },
 });
+
+contextBridge.exposeInMainWorld('ipcRenderer',{
+  ...ipcRenderer,
+  on(ipcName: string,callback: (event:Electron.IpcRendererEvent,...args:unknown[])=>void){
+    ipcRenderer.on(ipcName,callback);
+  },
+});
+
+contextBridge.exposeInMainWorld('imageData',()=>ipcRenderer.invoke('imageData'));
+
+
+contextBridge.exposeInMainWorld('darkMode', {
+  toggle: () => ipcRenderer.invoke('dark-mode:toggle'),
+  system: () => ipcRenderer.invoke('dark-mode:system'),
+});
+
