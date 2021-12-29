@@ -1,10 +1,7 @@
 
 <template>
   <page-component
-    :pages="{
-      name: 'Selfie',
-      url: 'thread.php?fid=15',
-    }"
+    pages="Selfie"
   />
 </template>
 

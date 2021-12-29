@@ -31,6 +31,7 @@ const config = {
     rollupOptions: {
       external: [
         'electron',
+        'sqlite3',
         'electron-devtools-installer',
         ...builtinModules,
       ],

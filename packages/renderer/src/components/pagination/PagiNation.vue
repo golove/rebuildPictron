@@ -4,7 +4,7 @@
       v-model:page="page"
       :page-count="pagecount"
     />
-    <switchButton />
+    <switchButton @handle="handle" />
   </div>
 </template>
 <script lang="ts">
@@ -22,12 +22,16 @@ export default defineComponent({
     const pagecount = computed(() => props.pageCount);
     const page = ref(1);
     const active = ref(false);
+    function handle (e:string){
+      _emit.emit('handleBtn',e);
+    }
     watch(page, (n) => {
       _emit.emit('turnPage', n);
       // console.log(page.value)
     });
 
     return {
+      handle,
       pagecount,
       active,
       page,

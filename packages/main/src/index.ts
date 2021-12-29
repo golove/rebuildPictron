@@ -2,12 +2,10 @@ import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron';
 import { join } from 'path';
 import { URL } from 'url';
 import './security-restrictions';
-// import getPage from './request';
+import Manage from './sqlitedb/Manage';
 const isSingleInstance = app.requestSingleInstanceLock();
 const isDevelopment = import.meta.env.MODE === 'development';
 
-// const res = getPage('https://k7.hfv942p0.org/pw/');
-// console.log(res);
 
 if (!isSingleInstance) {
   app.quit();
@@ -33,6 +31,9 @@ if (isDevelopment) {
 
 let mainWindow: BrowserWindow | null = null;
 
+
+
+const manage = new Manage();
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
     // show: false, // Use 'ready-to-show' event to show window
@@ -62,14 +63,84 @@ const createWindow = async () => {
     return nativeTheme.shouldUseDarkColors;
   });
 
+
+
   ipcMain.handle('dark-mode:system', () => {
     nativeTheme.themeSource = 'system';
     return nativeTheme.shouldUseDarkColors;
   });
 
-  ipcMain.handle('imageData', () => {
-    return [{ name: 'ziyu' }];
+   type IDataS = {
+    classify: string;
+    title: string;
+    url: string;
+    href: string;
+    star: number;
+    collect: boolean;
+    deleted: boolean;
+    download: boolean;
+  };
+  type IData = {
+    classify: string;
+    title: string;
+    url: string;
+    href: Array<string>;
+    star: number;
+    collect: boolean;
+    deleted: boolean;
+    download: boolean;
+  };
+
+  ipcMain.on('getImageData',(event,arg:{title:string,pageNumber:number,collect:boolean})=>{
+    const title = arg.title;
+    // const imgData:IData[] = [];
+    manage[title].DB.getLimitImages(arg.pageNumber,(e: unknown, a: Array<IDataS>) => {
+      if (e) console.error(e);
+      if (a) {
+        for (const item of a) {
+          const temItem: IData = {
+            classify: '',
+            title: '',
+            url: '',
+            href: [],
+            star: 0,
+            collect: false,
+            deleted: false,
+            download: false,
+          };
+          temItem.href = item.href.split(',');
+          temItem.title = item.title;
+          temItem.classify = item.classify;
+          temItem.url = item.url;
+          temItem.star = item.star;
+          temItem.collect = item.collect;
+          temItem.deleted = item.deleted;
+          temItem.download = item.download;
+          if(arg.collect){
+            if (temItem.collect) {
+              event.sender.send('imageData',temItem);
+            }
+          }else{
+            event.sender.send('imageData',temItem);
+          }
+
+        }
+
+      }
+    });
+
   });
+
+
+  ipcMain.on('getCollectImageData',(event)=>{
+   const collectData = manage.getAllCollect();
+   event.sender.send('collectData',collectData);
+  });
+
+  // console.log();
+  // ipcMain.handle('imageData', () => {
+  //   return manage;
+  // });
 
   ipcMain.on('windowTool', (event, content) => {
     if(mainWindow===null) {
@@ -87,7 +158,7 @@ const createWindow = async () => {
         mainWindow.close();
       }
     }
-   
+
   });
 
   /**

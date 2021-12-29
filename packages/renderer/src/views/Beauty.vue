@@ -1,10 +1,5 @@
 <template>
-  <page-component
-    :pages="{
-      name: 'Beauty',
-      url: 'thread.php?fid=14',
-    }"
-  />
+  <page-component :pages="'Beauty'" />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';

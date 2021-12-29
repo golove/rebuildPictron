@@ -6,7 +6,7 @@
     item-selector=".item"
   >
     <n-card
-      v-for="(e) in imgData.splice((pageN - 1) * 10, 10 * pageN)"
+      v-for="(e) in imgData.imgList"
       :key="e.title"
       v-masonry-tile
       class="item"
@@ -21,12 +21,15 @@
       </template>
     </n-card>
   </div>
-  <pagination @turn-page="turnPage" />
+  <pagination
+    @turn-page="turnPage"
+    @handle-btn="handleBtn"
+  />
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, reactive, computed, watch, onMounted } from 'vue';
 import pagination from '../components/pagination/PagiNation.vue';
-import imgData from './imgData/index';
+// import imgData from './imgData/index';
 import { useRouter } from 'vue-router';
 import { useStore } from '/@/store';
 import type { IData } from '/@/type';
@@ -40,14 +43,12 @@ export default defineComponent({
   },
   props: {
     pages: {
-      type: Object,
-      default: () => ({
-        name: 'Beauty',
-        url: 'https://k6.c5cbca7s.pw/pw/thread.php?fid=14',
-      }),
+      type: String,
+      default: 'Beauty',
     },
   },
-  setup() {
+  setup(props) {
+    const pageName = computed(() => props.pages);
     const store = useStore();
     const router = useRouter();
     function showAlbum(e: IData) {
@@ -57,15 +58,41 @@ export default defineComponent({
       });
       router.push('/album');
     }
-
-    const aa = window.imageData();
-    console.log(aa);
     const pageN = ref(1);
+    let imgData: {imgList:IData[]} = reactive({
+      imgList:[],
+    });
+    const collect = ref(false);
+    function handleBtn(e:string){
+      if(e==='my collect'){
+       collect.value = true;
+      }else{
+        collect.value = false;
+      }
+    }
     function turnPage(n: number) {
       pageN.value = n;
     }
 
+    onMounted(() => {
+      window.ipcRenderer.send('getImageData', { title: pageName.value, pageNumber: pageN.value,collect:collect.value });
+
+    });
+    watch(pageN, (n) => {
+      imgData.imgList = [];
+      window.ipcRenderer.send('getImageData', { title: pageName.value, pageNumber: n ,collect:collect.value});
+    });
+    watch(collect,(n)=>{
+      imgData.imgList = [];
+      window.ipcRenderer.send('getImageData', { title: pageName.value, pageNumber: pageN.value ,collect:n});
+    });
+    window.ipcRenderer.on('imageData', (e: any, a: any) => {
+      imgData.imgList.push(a);
+      // console.log(pageN.value,a);
+    });
+
     return {
+      handleBtn,
       pageN,
       imgData,
       turnPage,

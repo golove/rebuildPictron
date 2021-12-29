@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="tabmenu"
-  >
+  <div class="tabmenu">
     <div
       id="over"
       class="over"
@@ -19,7 +17,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 // import {IMenu} from '/@/type'
 // import windowTool from './windowTool.vue'
@@ -40,9 +38,6 @@ export default defineComponent({
       { title: 'Setting', path: '/setting', icon: '#setting' },
     ];
     const router = useRouter();
-    onMounted(() => {
-      menuMethod(0, '/');
-    });
 
     function menuMethod(index: number, path: string) {
       router.push(path);
@@ -58,20 +53,16 @@ export default defineComponent({
     }
     const route = useRoute();
     watch(route, (n) => {
-      //   console.log(n.path)
-      let nu;
-      for (const e of menus) {
-        if (e.path === n.path) {
-          nu === true;
-        } else {
-          nu === false;
-        }
-      }
-      if (nu) {
-        stayPath.value = n.path;
-        const index = menus.findIndex((e) => e.path === n.path);
+      console.log(n.path);
+      stayPath.value = n.path;
+      const index = menus.findIndex((e) => e.path === n.path);
+      if (index > -1) {
         menuMethod(index, n.path);
+      } else {
+        return;
       }
+
+
     });
     return {
       stayPath,

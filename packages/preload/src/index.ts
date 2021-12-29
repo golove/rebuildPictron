@@ -3,6 +3,14 @@ import {contextBridge, ipcRenderer} from 'electron';
 import type {BinaryLike} from 'crypto';
 import {createHash} from 'crypto';
 
+
+// import getpage from '../../preload/src/spider/request';
+
+
+
+// const host = 'http://x2.2112kw.rocks/pw/';
+// const url = `${host}thread.php?fid=14thread.php?fid=${1}`;
+// done(url);
 /**
  * The "Main World" is the JavaScript context that your main renderer code runs in.
  * By default, the page you load in your renderer executes code in this world.
