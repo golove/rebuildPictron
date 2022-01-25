@@ -99,7 +99,7 @@ function spider(
 }
 
 function getHref(html: string, n: number) {
-  const b = new RegExp(`html_data\/${n}\/([^<>"])*`, 'gi');
+  const b = new RegExp(`html_data/${n}/([^<>"])*`, 'gi');
   const href = html.match(b);
   return Array.from(new Set(href));
 }

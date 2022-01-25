@@ -17,7 +17,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted, computed } from 'vue';
+import { defineComponent, watch, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore } from '/@/store';
 // import {IMenu} from '/@/type'
