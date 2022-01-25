@@ -60,16 +60,12 @@
 <script lang="ts">
 import { defineComponent, ref, reactive, computed, watch, onMounted } from 'vue';
 import pagination from '../components/pagination/PagiNation.vue';
-// import imgData from './imgData/index';
 import { useRouter } from 'vue-router';
 import { useStore } from '/@/store';
 import type { IData } from '/@/type';
 export default defineComponent({
   name: 'PageComponent',
   components: {
-    // card
-    //  e
-
     pagination,
   },
   props: {
@@ -138,41 +134,44 @@ export default defineComponent({
     const collectflag = ref(false);
     const deletedflag = ref(false);
     function collectMethod(e) {
-      e.value.collect = !e.value.collect;
-      window.ipcRenderer.send('changee', {
-        url: e.value.url,
-        actName: 'collect',
-        classify: e.value.classify,
+      console.log(e.collect);
+      e.collect = !e.collect;
+      window.ipcRenderer.send('change', {
+        href: e.href,
+        act: 'collect',
+        value:e.collect,
+        tableName: e.type,
       });
       window.ipcRenderer.on('collect-reply', (event, arg) => {
-        // e.value.collect = arg
+        // e.collect = arg
         console.log('collect:' + arg);
       });
     }
 
     function downloadMethod(e) {
-      if (!e.value.download) {
+      if (!e.download) {
         downloadflag.value = true;
         window.ipcRenderer.send('changee', {
-          url: e.value.url,
-          actName: 'download',
-          classify: e.value.classify,
+          href: e.href,
+          act: 'download',
+          tableName: e.type,
         });
         window.ipcRenderer.on('download-reply', (event, arg) => {
-          e.value.download = arg;
+          e.download = arg;
           console.log('download:' + arg);
         });
       }
     }
     function deleteMethod(e) {
-      e.value.deleted = !e.value.deleted;
+      e.deleted = !e.deleted;
       window.ipcRenderer.send('changee', {
-        url: e.value.url,
-        actName: 'deleted',
-        classify: e.value.classify,
+        href: e.href,
+        act: 'deleted',
+        value:e.deleted,
+        tableName: e.type,
       });
       window.ipcRenderer.on('deleted-reply', (event, arg) => {
-        // e.value.collect = arg
+        // e.collect = arg
         console.log('delete:' + arg);
       });
     }
@@ -220,6 +219,10 @@ export default defineComponent({
 .n-card:hover .n-card-header {
   transform: translateY(50%);
   opacity: 1;
+}
+.n-card:hover .n-card__action svg.collectstyle {
+  opacity: 1;
+
 }
 .n-card .n-card-header {
   position: absolute;

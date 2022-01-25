@@ -21,6 +21,7 @@ export default defineComponent({
       default: 8,
     },
   },
+emits: ['handleBtn', 'turnPage'],
   setup(props, _emit) {
     const store = useStore();
     const pagecount = computed(() => props.pageCount);
@@ -33,10 +34,7 @@ export default defineComponent({
     // watch(pageSize,(n)=>{
     //   _emit.emit('turnPageSize',n);
     // });
-    watch(page, (n) => {
-      _emit.emit('turnPage', n);
-      // console.log(page.value)
-    });
+    watch(page, (n) => _emit.emit('turnPage', n));
     onMounted(()=>{
       page.value = store.state.page;
     });

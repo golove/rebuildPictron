@@ -1,19 +1,27 @@
 <script lang="ts" setup>
-import { onMounted, reactive, watch } from 'vue';
+import { onMounted, reactive } from 'vue';
 import {NSpace,NTable} from 'naive-ui';
+import { useRouter } from 'vue-router';
 const msg = reactive([]);
-const appDom = document.getElementById('app');
+// const appDom = document.getElementById('layout');
+const router = useRouter();
 function sendMsg(){
 window.ipcRenderer.send('spiderAll');
- window.ipcRenderer.on('mainMsg',(e,a)=>{
-  //  console.log(a)
-    msg.push(a);
+ window.ipcRenderer.on('mainMsg',(e,arg)=>{
+    msg.push(arg.img);
+    if(arg.Xindex===6&&arg.Yindex===arg.DataLength-1){
+      let TM = setTimeout(()=>{
+        router.push('/ustyle');
+        clearTimeout(TM);
+      },3000);
+    }
   });
+
 }
-watch(()=>[...msg],()=>{
-    window.scrollTo(0,appDom!.scrollHeight+500);
-    console.log(appDom!.scrollHeight);
-  });
+// watch(()=>[...msg],()=>{
+//     window.scrollTo(0,appDom!.scrollHeight+500);
+//     console.log(appDom!.scrollHeight);
+//   });
 
 onMounted(()=>{
   if(msg.length===0){

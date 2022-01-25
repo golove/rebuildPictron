@@ -4,30 +4,30 @@ import sqlite3 from 'sqlite3';
 // eslint-disable-next-line no-var
 var DB = DB || {};
 
-DB.SqliteDB = function (file:string) {
-    DB.db = new sqlite3.Database(file);
-    DB.exists = existsSync(file);
-    if (!DB.exists) {
-        console.log('Creating db file!');
-        openSync(file, 'w');
-    }
+DB.SqliteDB = function (file: string) {
+  DB.db = new sqlite3.Database(file);
+  DB.exists = existsSync(file);
+  if (!DB.exists) {
+    console.log('Creating db file!');
+    openSync(file, 'w');
+  }
 };
 
-DB.printErrorInfo = function (err:any) {
-    console.log('Error Message: ' + err.message + 'ErrorNumber: ' + err);
+DB.printErrorInfo = function (err: any) {
+  console.log('Error Message: ' + err.message + 'ErrorNumber: ' + err);
 };
 
 // const createTableSql = "CREATE TABLE IF NOT EXISTS beauty (title TEXT,href TEXT,srcs BLOB,star INTEGER,collect NUMERIC,deleted NUMERIC,download NUMERIC);";
 // sqliteDB.createTable(createTableSql);
-DB.SqliteDB.prototype.createTable = function (sql:string) {
-    DB.db.serialize(function () {
-        DB.db.run(sql, function (err:any) {
-            if (null != err) {
-                DB.printErrorInfo(err);
-                return;
-            }
-        });
+DB.SqliteDB.prototype.createTable = function (sql: string) {
+  DB.db.serialize(function () {
+    DB.db.run(sql, function (err: any) {
+      if (null != err) {
+        DB.printErrorInfo(err);
+        return;
+      }
     });
+  });
 };
 
 // const insertData = [
@@ -40,23 +40,22 @@ DB.SqliteDB.prototype.createTable = function (sql:string) {
 // const insertSql = 'INSERT INTO beauty VALUES (?,?,?,?,?,?,?);';
 // sqliteDB.insertData(insertSql, insertData);
 
-DB.SqliteDB.prototype.insertDatas = function (sql:string, objects:[]) {
-    DB.db.serialize(function () {
-        const stmt = DB.db.prepare(sql);
-        for (let i = 0; i < objects.length; ++i) {
-            stmt.run(objects[i]);
-        }
-        stmt.finalize();
-    });
+DB.SqliteDB.prototype.insertDatas = function (sql: string, objects: []) {
+  DB.db.serialize(function () {
+    const stmt = DB.db.prepare(sql);
+    for (let i = 0; i < objects.length; ++i) {
+      stmt.run(objects[i]);
+    }
+    stmt.finalize();
+  });
 };
-DB.SqliteDB.prototype.insertData = function (sql:string, object:[]) {
-    DB.db.serialize(function () {
-        const stmt = DB.db.prepare(sql);
-        stmt.run(object);
-        stmt.finalize();
-    });
+DB.SqliteDB.prototype.insertData = function (sql: string, object: []) {
+  DB.db.serialize(function () {
+    const stmt = DB.db.prepare(sql);
+    stmt.run(object);
+    stmt.finalize();
+  });
 };
-
 
 // const querySql = 'select * from beauty';
 // const query = `SELECT * FROM ${tableName} LIMIT ${3} OFFSET ${(n - 1) * 3}`;
@@ -64,31 +63,58 @@ DB.SqliteDB.prototype.insertData = function (sql:string, object:[]) {
 //     console.log(rows)
 // }
 // // sqliteDB.queryData(querySql,queryData);
-DB.SqliteDB.prototype.queryData = function (sql:string,event:Electron.IpcRendererEvent) {
-    DB.db.all(sql, function (err:any, rows:string[]) {
-        if (null != err) {
-            // DB.printErrorInfo(err);
-            // return;
-            event.sender.send('imagesData',false);
-        }
-
+DB.SqliteDB.prototype.queryData = function (
+  sql: string,
+  collect?: boolean,
+  event?: Electron.IpcRendererEvent,
+  callback?:(rows:[]) =>void,
+) {
+  DB.db.all(sql, function (err: any, rows: []) {
+    // console.log(collect);
+    // console.log(rows);
+    if (collect) {
+      if(event) {
+        if(rows===undefined){
+          event.sender.send('imagesData', []);
+        }else{
           event.sender.send('imagesData', rows);
+        }
+      }
 
-    });
+    }else{
+      if(event){
+        if (null != err) {
+          // DB.printErrorInfo(err);
+          // return;
+          event.sender.send('imagesData', false);
+        }else{
+          event.sender.send('imagesData', rows);
+        }
+      }
+
+    }
+    if(callback){
+      callback(rows);
+    }
+
+  });
 };
 
 // const updateSql = 'update beauty set download = 1 where star = 0';
 // sqliteDB.executeSql(updateSql)
-DB.SqliteDB.prototype.executeSql = function (sql:string) {
-    DB.db.run(sql, function (err:any) {
-        if (null != err) {
-            DB.printErrorInfo(err);
-        }
-    });
+DB.SqliteDB.prototype.executeSql = function (sql: string,act:string,event: Electron.IpcMainEvent) {
+  DB.db.exec(sql, function (err: any) {
+    if (null != err) {
+      DB.printErrorInfo(err);
+      event.sender.send(act+'-reply',false);
+    }else{
+      event.sender.send(act+'-reply',true);
+    }
+  });
 };
 
 DB.SqliteDB.prototype.close = function () {
-    DB.db.close();
+  DB.db.close();
 };
 
 export const SqliteDB = DB.SqliteDB;

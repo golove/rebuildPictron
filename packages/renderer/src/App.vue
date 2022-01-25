@@ -9,6 +9,7 @@
         <tab-menu />
       </n-layout-header>
       <n-layout
+        ref="content"
         position="absolute"
         style="top: 31px"
         content-style="padding: 4px;"

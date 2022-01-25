@@ -35,8 +35,8 @@ export default defineComponent({
       { title: 'Lace', path: '/lace', icon: '#foot' },
       { title: 'Selfie', path: '/selfie', icon: '#camera' },
       { title: 'Passion', path: '/passion', icon: '#tree' },
-      { title: 'Collect', path: '/collect', icon: '#heart' },
-      { title: 'Spider', path: '/spider', icon: '#heart' },
+      // { title: 'Collect', path: '/collect', icon: '#heart' },
+      // { title: 'Spider', path: '/spider', icon: '#heart' },
       { title: 'Setting', path: '/setting', icon: '#setting' },
     ];
     const router = useRouter();

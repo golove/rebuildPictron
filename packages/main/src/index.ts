@@ -5,7 +5,7 @@ import './security-restrictions';
 
 const isSingleInstance = app.requestSingleInstanceLock();
 const isDevelopment = import.meta.env.MODE === 'development';
-import {spiderAll,readImg} from '/@/spider/spider';
+import {spiderAll,readImg, updateImg} from '/@/spider/spider';
 
 if (!isSingleInstance) {
   app.quit();
@@ -63,7 +63,10 @@ const createWindow = async () => {
     return nativeTheme.shouldUseDarkColors;
   });
 
+  ipcMain.on('change',(event, arg:{href: string,act:string,value:boolean,tableName:string})=>{
+    updateImg(arg.tableName, arg.act, arg.href,arg.value, event);
 
+  });
 
   ipcMain.handle('dark-mode:system', () => {
     nativeTheme.themeSource = 'system';
@@ -72,17 +75,18 @@ const createWindow = async () => {
 
   ipcMain.on('spiderAll',(event)=>{
     spiderAll(event);
+
   });
 
   ipcMain.on('getImageData',(event,arg:{tableName:string,pageNumber:number,collect:boolean})=>{
-    readImg(arg.tableName,arg.pageNumber,event);
+    readImg(arg.tableName,arg.pageNumber,arg.collect,event);
   });
 
 
-  ipcMain.on('getCollectImageData',(event)=>{
-   const collectData = manage.getAllCollect();
-   event.sender.send('collectData',collectData);
-  });
+  // ipcMain.on('getCollectImageData',(event)=>{
+  // //  const collectData = manage.getAllCollect();
+  //  event.sender.send('collectData',collectData);
+  // });
 
   // console.log();
   // ipcMain.handle('imageData', () => {

@@ -50,6 +50,9 @@ export function spiderAll(event: Electron.IpcMainEvent) {
       true,
       event,
       array[index].n,
+      index,
+      0,
+      0,
     );
     // console.log(array[index].url);
   }
@@ -68,6 +71,9 @@ function spider(
   flag: boolean,
   event: Electron.IpcMainEvent,
   n: number,
+  Xindex:number,
+  Yindex:number,
+  DataLength:number,
 ) {
   const request = net.request(url);
   request.on('response', (response) => {
@@ -79,13 +85,11 @@ function spider(
           const createTableSql = `CREATE TABLE IF NOT EXISTS ${tableName} (title TEXT,type TEXT, href TEXT,srcs BLOB,star INTEGER,collect NUMERIC,deleted NUMERIC,download NUMERIC);`;
           sqliteDB.createTable(createTableSql);
           const hrefs = getHref('' + chunk, n);
-          // const last =host+ hrefs[hrefs.length - 1];
-          // console.log(tableName+' :'+hrefs)
           for (let index = 0; index < hrefs.length; index++) {
-            spider(host + hrefs[index], tableName, false, event, n);
+            spider(host + hrefs[index], tableName, false, event, n,Xindex,index,hrefs.length);
           }
         } else {
-          getSrc('' + chunk, url, tableName, event);
+          getSrc('' + chunk, url, tableName,Xindex, event,Yindex,DataLength);
         }
       } else {
         console.log('request warning');
@@ -108,7 +112,10 @@ function getSrc(
   html: string,
   url: string,
   tableName: string,
+  Xindex:number,
   event: Electron.IpcMainEvent,
+  Yindex: number,
+  DataLength:number,
 ) {
   const b =
     /(http|https):\/\/[\w]+\.[\w]+\.[\w]+\/i\/[0-9]+\/[0-9]+\/[0-9]+\/[\w]+\.(jpg|jpeg|png)/gi;
@@ -126,7 +133,7 @@ function getSrc(
     false,
     false,
   ];
-  event.sender.send('mainMsg', img);
+  event.sender.send('mainMsg', {img,Xindex,Yindex,DataLength});
   const insertSql = `INSERT INTO ${tableName} VALUES (?,?,?,?,?,?,?,?);`;
   sqliteDB.insertData(insertSql, img);
 }
@@ -134,12 +141,22 @@ function getSrc(
 export function readImg(
   tableName: string,
   page: number,
+  collect: boolean,
   event: Electron.IpcMainEvent,
 ) {
-  const sql = `SELECT * FROM ${tableName} LIMIT 24 OFFSET ${(page - 1) * 24}`;
-  // function queryData(rows: string[]) {
-  //   console.log(rows);
+  let sql='';
+  if(collect){
+    sql = `SELECT * FROM ${tableName} where collect = 1`;
+  }else{
+     sql = `SELECT * FROM ${tableName} LIMIT 24 OFFSET ${(page - 1) * 24}`;
+  }
+  console.log(sql);
+  sqliteDB.queryData(sql,collect,event);
+}
 
-  // }
-  sqliteDB.queryData(sql,event);
+
+export function updateImg(tableName: string,act: string,href: string,value:boolean,event: Electron.IpcMainEvent){
+  const updateSql = `update ${tableName} set ${act} = ${value} where href = '${href}'`;
+  sqliteDB.executeSql(updateSql,act,event);
+  // console.log(tableName,act,href,event);
 }
