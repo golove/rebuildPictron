@@ -31,7 +31,7 @@ export default defineComponent({
     const router = useRouter();
 const store = useStore();
 const albums = computed(() => store.state.album);
-  
+
     onMounted(() => {
       if (albums.value[0] === '') {
         router.push('/');
@@ -61,7 +61,7 @@ img {
   width: 100%;
   display: block;
 
-  transition: all 0.3s ease-in-out;
+  /* transition: all 0.3s ease-in-out; */
 }
 
 .n-image-preview-wrapper {
@@ -84,6 +84,6 @@ img {
 .n-image-preview-toolbar {
   background: rgba(73, 73, 73, 0.2);
     /* backdrop-filter: blur(7px); */
-     margin:-30px; 
+     margin:-30px;
 }
 </style>

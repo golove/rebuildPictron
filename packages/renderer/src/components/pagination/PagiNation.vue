@@ -3,12 +3,15 @@
     <n-pagination
       v-model:page="page"
       :page-count="pagecount"
+      :page-slot="7"
+      show-quick-jumper
     />
     <switchButton @handle="handle" />
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref, watch, computed } from 'vue';
+import { defineComponent, ref, watch, computed, onMounted} from 'vue';
+import { useStore } from '/@/store';
 import switchButton from '/@/components/switchButton/SwitchButton.vue';
 export default defineComponent({
   components: { switchButton },
@@ -19,15 +22,23 @@ export default defineComponent({
     },
   },
   setup(props, _emit) {
+    const store = useStore();
     const pagecount = computed(() => props.pageCount);
     const page = ref(1);
+    // const pageSize = ref(48);
     const active = ref(false);
     function handle (e:string){
       _emit.emit('handleBtn',e);
     }
+    // watch(pageSize,(n)=>{
+    //   _emit.emit('turnPageSize',n);
+    // });
     watch(page, (n) => {
       _emit.emit('turnPage', n);
       // console.log(page.value)
+    });
+    onMounted(()=>{
+      page.value = store.state.page;
     });
 
     return {
@@ -67,5 +78,8 @@ export default defineComponent({
 }
 .n-pagination {
   width: 40%;
+}
+..n-input {
+  background-color:
 }
 </style>

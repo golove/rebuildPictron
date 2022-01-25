@@ -6,18 +6,49 @@
     item-selector=".item"
   >
     <n-card
-      v-for="(e) in imgData.imgList"
+      v-for="(e) in imgDatas.imgList"
       :key="e.title"
       v-masonry-tile
       class="item"
       hoverable
       @click="showAlbum(e)"
     >
+      <template #action>
+        <svg
+          :class="e.collect ? 'collectstyled' : 'collectstyle'"
+          @click.stop="collectMethod(e)"
+        >
+          <use xlink:href="#heart" />
+        </svg>
+        <div>
+          <svg
+            :class="e.download ? 'collectstyled' : downloadflag ? 'svgAnimate' : 'collectstyle'"
+            @click.stop="downloadMethod(e)"
+          >
+            <use
+              v-if="e.download"
+              xlink:href="#check_circle"
+            />
+            <use
+              v-else
+              :xlink:href="downloadflag ? '#refresh' : '#download_circle'"
+            />
+          </svg>
+          <svg
+            :class="e.deleted ? 'collectstyled' : 'collectstyle'"
+            @click.stop="deleteMethod(e)"
+          >
+            <use xlink:href="#trash" />
+          </svg>
+        </div>
+      </template>
       <template #header>
         {{ e.title }}
       </template>
       <template #cover>
-        <img :src="e.href[0]">
+        <img
+          :src="e.srcs.split(',')[0]"
+        >
       </template>
     </n-card>
   </div>
@@ -37,7 +68,7 @@ export default defineComponent({
   name: 'PageComponent',
   components: {
     // card
-    //  actool
+    //  e
 
     pagination,
   },
@@ -51,52 +82,117 @@ export default defineComponent({
     const pageName = computed(() => props.pages);
     const store = useStore();
     const router = useRouter();
+
     function showAlbum(e: IData) {
       store.commit('SET_ALBUM', {
-        hrefs: e.href,
+        srcs: e.srcs.split(','),
         title: e.title,
       });
       router.push('/album');
     }
-    const pageN = ref(1);
-    let imgData: {imgList:IData[]} = reactive({
-      imgList:[],
-    });
+    // const pageN = ref(1);
+    // const pageSize = ref(1);
+    let imgDatas = reactive({imgList:[]});
     const collect = ref(false);
-    function handleBtn(e:string){
-      if(e==='my collect'){
-       collect.value = true;
-      }else{
+    function handleBtn(e: string) {
+      if (e === 'my collect') {
+        collect.value = true;
+      } else {
         collect.value = false;
       }
     }
     function turnPage(n: number) {
-      pageN.value = n;
+      // pageN.value = n;
+       imgDatas.imgList = [];
+      window.ipcRenderer.send('getImageData', { tableName: pageName.value, pageNumber: n, collect: collect.value });
+        store.commit('SET_PAGE', n);
     }
+    // function turnPageSize(n: number) {
+    //   pageSize.value = n;
+    // }
 
     onMounted(() => {
-      window.ipcRenderer.send('getImageData', { title: pageName.value, pageNumber: pageN.value,collect:collect.value });
+      window.ipcRenderer.send('getImageData', { tableName: pageName.value, pageNumber: store.state.page, collect: collect.value });
 
     });
-    watch(pageN, (n) => {
-      imgData.imgList = [];
-      window.ipcRenderer.send('getImageData', { title: pageName.value, pageNumber: n ,collect:collect.value});
+
+    // watch(pageSize, (n) => {
+
+    // })
+    watch(collect, (n) => {
+      imgDatas.imgList = [];
+      window.ipcRenderer.send('getImageData', { tableName: pageName.value, pageNumber: store.state.page, collect: n });
+
     });
-    watch(collect,(n)=>{
-      imgData.imgList = [];
-      window.ipcRenderer.send('getImageData', { title: pageName.value, pageNumber: pageN.value ,collect:n});
-    });
-    window.ipcRenderer.on('imageData', (e: any, a: any) => {
-      imgData.imgList.push(a);
+    window.ipcRenderer.on('imagesData', (e: any, a) => {
+      if(a){
+        imgDatas.imgList = a;
+      }else{
+        router.push('/spider');
+      }
+
       // console.log(pageN.value,a);
     });
 
+    const downloadflag = ref(false);
+    const collectflag = ref(false);
+    const deletedflag = ref(false);
+    function collectMethod(e) {
+      e.value.collect = !e.value.collect;
+      window.ipcRenderer.send('changee', {
+        url: e.value.url,
+        actName: 'collect',
+        classify: e.value.classify,
+      });
+      window.ipcRenderer.on('collect-reply', (event, arg) => {
+        // e.value.collect = arg
+        console.log('collect:' + arg);
+      });
+    }
+
+    function downloadMethod(e) {
+      if (!e.value.download) {
+        downloadflag.value = true;
+        window.ipcRenderer.send('changee', {
+          url: e.value.url,
+          actName: 'download',
+          classify: e.value.classify,
+        });
+        window.ipcRenderer.on('download-reply', (event, arg) => {
+          e.value.download = arg;
+          console.log('download:' + arg);
+        });
+      }
+    }
+    function deleteMethod(e) {
+      e.value.deleted = !e.value.deleted;
+      window.ipcRenderer.send('changee', {
+        url: e.value.url,
+        actName: 'deleted',
+        classify: e.value.classify,
+      });
+      window.ipcRenderer.on('deleted-reply', (event, arg) => {
+        // e.value.collect = arg
+        console.log('delete:' + arg);
+      });
+    }
+    function imgloaded() {
+      console.log('i am loaded');
+    }
+
     return {
+      loading: ref(true),
       handleBtn,
-      pageN,
-      imgData,
+      imgDatas,
       turnPage,
       showAlbum,
+      collectMethod,
+      downloadMethod,
+      deleteMethod,
+      downloadflag,
+      deletedflag,
+      collectflag,
+      imgloaded,
     };
   },
 });
@@ -138,6 +234,53 @@ export default defineComponent({
 .n-card .n-card__content {
   padding: 0;
   margin: 0;
+}
+.n-card > .n-card__action {
+  position: absolute;
+  width: 45px;
+  height: 98%;
+  background: rgba(255, 255, 255, 0);
+  /* top: 33%; */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+.n-card > .n-card__action svg {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+@keyframes mymove {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes mymove /*Safari and Chrome*/ {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.n-card > .n-card__action svg.svgAnimate {
+  fill: rgba(255, 9, 103, 0.9);
+  animation: mymove 1s infinite;
+  -webkit-animation: mymove s infinite; /*Safari and Chrome*/
+}
+.n-card > .n-card__action svg.collectstyled {
+  fill: rgba(255, 9, 103, 0.9);
+}
+.n-card > .n-card__action svg.collectstyle {
+  opacity: 0;
+  fill: White;
 }
 .n-card img {
   width: 100%;

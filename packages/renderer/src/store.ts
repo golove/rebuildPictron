@@ -7,12 +7,14 @@ import { createStore, useStore as baseUseStore } from 'vuex';
 export interface State {
   album: Array<string>,
   albumTitle:string,
+  page:number,
   albumFlag:boolean,
   darkTheme:boolean,
+  stayPath:string,
 }
 
 interface IAlbum{
-  hrefs:Array<string>,
+  srcs:Array<string>,
   title:string,
 }
 
@@ -24,22 +26,30 @@ export const store = createStore<State>({
   state: {
     album: [''],
     albumTitle: '',
+    page:1,
     albumFlag: false,
     darkTheme:false,
+    stayPath:'/',
 
   },
   getters: {
   },
   mutations: {
     SET_ALBUM (state, data: IAlbum) {
-      state.album = data.hrefs;
+      state.album = data.srcs;
       state.albumTitle = data.title;
+    },
+    SET_PAGE(state,page: number) {
+      state.page = page;
     },
     SET_DARKTHEME(state,data:boolean){
       state.darkTheme = data;
     },
     SET_ALBUMFLAG (state, data:boolean) {
       state.albumFlag = data;
+    },
+    SET_PATH(state,data:string){
+      state.stayPath = data;
     },
   },
   actions: {

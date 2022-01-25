@@ -17,8 +17,9 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref, watch, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useStore } from '/@/store';
 // import {IMenu} from '/@/type'
 // import windowTool from './windowTool.vue'
 export default defineComponent({
@@ -26,22 +27,26 @@ export default defineComponent({
     // windowTool
   },
   setup() {
-    const stayPath = ref('/');
+    // const stayPath = ref('/');
     const menus = [
       { title: 'Beauty', path: '/', icon: '#beauty' },
       { title: 'Ustyle', path: '/ustyle', icon: '#female' },
-      { title: 'Carton', path: '/carton', icon: '#carton' },
-      { title: 'Lace', path: '/leisi', icon: '#foot' },
+      { title: 'Cartoon', path: '/cartoon', icon: '#carton' },
+      { title: 'Lace', path: '/lace', icon: '#foot' },
       { title: 'Selfie', path: '/selfie', icon: '#camera' },
       { title: 'Passion', path: '/passion', icon: '#tree' },
       { title: 'Collect', path: '/collect', icon: '#heart' },
+      { title: 'Spider', path: '/spider', icon: '#heart' },
       { title: 'Setting', path: '/setting', icon: '#setting' },
     ];
     const router = useRouter();
-
-    function menuMethod(index: number, path: string) {
-      router.push(path);
-      stayPath.value = path;
+    const store = useStore();
+    const stayPath = computed(() => store.state.stayPath);
+    function menuMethod(index: number, path: string, routefalg = false) {
+      if (!routefalg) {
+        router.push(path);
+      }
+      store.commit('SET_PATH', path);
       const over = document.getElementById('over');
       let moveLeft = 0;
       for (let i = 0; i < index; i++) {
@@ -52,16 +57,19 @@ export default defineComponent({
       over!.style.left = `${moveLeft}px`;
     }
     const route = useRoute();
+    onMounted(() => {
+      const index = menus.findIndex((e) => e.path === stayPath.value);
+      menuMethod(index, stayPath.value);
+    });
     watch(route, (n) => {
-      console.log(n.path);
-      stayPath.value = n.path;
       const index = menus.findIndex((e) => e.path === n.path);
       if (index > -1) {
+        store.commit('SET_PATH', n.path);
         menuMethod(index, n.path);
       } else {
-        return;
+        const nu = menus.findIndex((e) => e.path === stayPath.value);
+        menuMethod(nu, stayPath.value, true);
       }
-
 
     });
     return {

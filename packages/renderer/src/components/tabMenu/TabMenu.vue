@@ -4,7 +4,7 @@
       golove
     </h2>
     <g-menu v-if="falg" />
-    
+
     <GAlbumbar v-else />
     <windowTool />
   </div>
@@ -22,21 +22,8 @@ export default defineComponent({
     GAlbumbar,
   },
   setup() {
-    // const menus = [
-    //   { title: "Beauty", path: "/", icon: "#beauty" },
-    //   { title: "Ustyle", path: "/ustyle", icon: "#female" },
-    //   { title: "Carton", path: "/carton", icon: "#carton" },
-    //   { title: "Lace", path: "/leisi", icon: "#foot" },
-    //   { title: "Selfie", path: "/selfie", icon: "#camera" },
-    //   { title: "Passion", path: "/passion", icon: "#tree" },
-    //   { title: "Collect", path: "/collect", icon: "#heart" },
-    //   { title: "Setting", path: "/setting", icon: "#setting" },
-    // ];
     const falg = ref(true);
     const route = useRoute();
-    // function handleBack() {
-    //   console.log("back");
-    // }
     watch(route, (n) => {
       if (n.name === 'Album') {
         falg.value = false;
