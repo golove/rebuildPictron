@@ -14,6 +14,7 @@ const routes = [
   { path: '/album', name: 'Album', component: () => import('/@/components/album/index.vue') },
   { path: '/spider', name: 'Spider', component: () => import('./views/Spider.vue') },
   { path: '/setting', name: 'Setting', component: () => import('./views/PictronSetting.vue') },
+  { path: '/carousel', name: 'Carousel', component: () => import('/@/components/album/carousel.vue') },
 
 ];
 

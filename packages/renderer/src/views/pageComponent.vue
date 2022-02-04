@@ -84,7 +84,7 @@ export default defineComponent({
         srcs: e.srcs.split(','),
         title: e.title,
       });
-      router.push('/album');
+      router.push('/carousel');
     }
     // const pageN = ref(1);
     // const pageSize = ref(1);

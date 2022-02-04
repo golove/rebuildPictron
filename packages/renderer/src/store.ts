@@ -10,6 +10,7 @@ export interface State {
   page:number,
   albumFlag:boolean,
   darkTheme:boolean,
+  imgIndex:number,
   stayPath:string,
 }
 
@@ -30,6 +31,7 @@ export const store = createStore<State>({
     albumFlag: false,
     darkTheme:false,
     stayPath:'/',
+    imgIndex:0,
 
   },
   getters: {
@@ -41,6 +43,9 @@ export const store = createStore<State>({
     },
     SET_PAGE(state,page: number) {
       state.page = page;
+    },
+    SET_IMGINDEX(state,index: number) {
+      state.imgIndex = index;
     },
     SET_DARKTHEME(state,data:boolean){
       state.darkTheme = data;

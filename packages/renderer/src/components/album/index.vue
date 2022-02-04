@@ -1,54 +1,66 @@
 <template>
-  <n-image-group>
-    <n-space
-      v-masonry
-      transition-duration="0.3s"
-      item-selector=".item"
-      class="albums"
+  <n-space
+    v-masonry
+    transition-duration="0.3s"
+    item-selector=".item"
+    class="albums"
+  >
+    <div
+      v-for="(e, index) in albums"
+      :key="e"
+      v-masonry-tile
+      class="item"
+      @click="showImg(index)"
     >
-      <n-image
+      <img
+        :src="e"
+        :alt="e"
+      >
+    </div>
+    <!-- <n-image
         v-for="(item, index) in albums"
         :key="index"
         v-masonry-tile
         class="item"
         width="100"
         :src="item"
-      />
-    </n-space>
-  </n-image-group>
+      />-->
+  </n-space>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, onMounted } from 'vue';
 import { useStore } from '/@/store';
-// import bigPicture from "./bigPicture.vue";
 import { useRouter } from 'vue-router';
 // import { IData } from '/@/type'
 export default defineComponent({
   name: 'PictronAlbum',
-  // components: { bigPicture },
   setup() {
     const router = useRouter();
-const store = useStore();
-const albums = computed(() => store.state.album);
+    const store = useStore();
+    const albums = computed(() => store.state.album);
 
-    onMounted(() => {
-      if (albums.value[0] === '') {
-        router.push('/');
-      }
-    });
+    function showImg(i:number){
+       router.push('/carousel');
+        store.commit('SET_IMGINDEX',i);
+    }
+
+
+    // onMounted(() => {
+    //   if (albums.value[0] === '') {
+    //     router.push('/');
+    //   }
+    // });
 
     return {
       albums,
+      showImg,
 
     };
   },
 });
 </script>
 <style>
-
-
-
 .albums {
   width: 100%;
 }
@@ -65,25 +77,24 @@ img {
 }
 
 .n-image-preview-wrapper {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    display: flex;
-    pointer-events: none;
-    background: rgb(78, 78, 78 );
-    /* backdrop-filter: blur(19px); */
-    /* margin: -115px; */
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  pointer-events: none;
+  background: rgb(78, 78, 78);
+  /* backdrop-filter: blur(19px); */
+  /* margin: -115px; */
 }
 .n-image-preview {
-
-    height: 100%;
-    width: auto;
+  height: 100%;
+  width: auto;
 }
 .n-image-preview-toolbar {
   background: rgba(73, 73, 73, 0.2);
-    /* backdrop-filter: blur(7px); */
-     margin:-30px;
+  /* backdrop-filter: blur(7px); */
+  margin: -30px;
 }
 </style>

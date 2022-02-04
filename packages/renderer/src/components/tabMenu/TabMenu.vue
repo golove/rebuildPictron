@@ -25,7 +25,7 @@ export default defineComponent({
     const falg = ref(true);
     const route = useRoute();
     watch(route, (n) => {
-      if (n.name === 'Album') {
+      if (n.name === 'Carousel') {
         falg.value = false;
       }else{
         falg.value = true;

@@ -26,7 +26,7 @@
 import tabMenu from './components/tabMenu/TabMenu.vue';
 import { defineComponent, ref, computed, watch, onMounted } from 'vue';
 import { darkTheme } from 'naive-ui';
-import type {GlobalThemeOverrides} from 'naive-ui';
+import type { GlobalThemeOverrides } from 'naive-ui';
 import { useStore } from '/@/store';
 import svgview from './SvgIcon.vue';
 export default defineComponent({
