@@ -77,7 +77,8 @@ emits: ['handleBtn', 'turnPage'],
 .n-pagination {
   width: 40%;
 }
-..n-input {
-  background-color:
+.n-input {
+  display: flex;
+  flex-wrap: nowrap;
 }
 </style>
