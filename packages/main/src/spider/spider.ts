@@ -133,7 +133,16 @@ function getSrc(
     false,
     false,
   ];
-  event.sender.send('mainMsg', {img,Xindex,Yindex,DataLength});
+  event.sender.send('mainMsg', {img:{
+   title: title![1],
+   type: tableName,
+    href:url,
+   srcs: Array.from(new Set(srcs)),
+   star: 0,
+   collect: 0,
+   delete: 0,
+    download:0,
+  },Xindex,Yindex,DataLength});
   const insertSql = `INSERT INTO ${tableName} VALUES (?,?,?,?,?,?,?,?);`;
   sqliteDB.insertData(insertSql, img);
 }
