@@ -1,6 +1,9 @@
 <template>
   <div class="galbum">
-    <div class="gbox">
+    <div
+      class="gbox"
+      :class="bigflag ? 'gboxx' : 'biggbox'"
+    >
       <svg @click="trunleft">
         <use xlink:href="#arrowLeft" />
       </svg>
@@ -16,6 +19,7 @@
           v-for="(e) in images"
           :key="e"
           class="carouselItem"
+          @click="bigflag = !bigflag"
         >
           <img :src="e">
         </div>
@@ -25,6 +29,7 @@
     <div
       ref="gmbox"
       class="gsmbox"
+      :class="bigflag ? 'showsmbox' : 'fadesmbox'"
     >
       <div class="gmbox">
         <div
@@ -33,6 +38,7 @@
           @click="show(i)"
         >
           <img
+            v-show="bigflag"
             :class="imgIndex == i ? 'imgoutline' : ''"
             :src="e"
           >
@@ -105,13 +111,13 @@ export default defineComponent({
     // const images = computed(() => props.srcs);
     const gsbox = ref(null);
     const gmbox = ref(null);
-    const imgIndex = computed(()=>store.state.imgIndex);
-
+    const imgIndex = computed(() => store.state.imgIndex);
+    const bigflag = ref(true);
     // const router = useRouter();
     const store = useStore();
     const images = computed(() => store.state.album);
 
-    function show(i:number) {
+    function show(i: number) {
       gsbox.value.style.cssText = `transform:translateX(${i * (-100)}vw)`;
       const step = (gmbox.value.scrollWidth) / (images.value.length);
       // console.log(step);
@@ -121,29 +127,53 @@ export default defineComponent({
         gmbox.value.scrollTo(step * (i - (images.value.length / 4)), 0);
       }
 
-      store.commit('SET_IMGINDEX',i);
+      store.commit('SET_IMGINDEX', i);
     }
     function trunleft() {
       if (imgIndex.value === 0) {
-         store.commit('SET_IMGINDEX',images.value.length);
+        store.commit('SET_IMGINDEX', images.value.length);
       }
 
-       store.commit('SET_IMGINDEX',imgIndex.value-1);
+      store.commit('SET_IMGINDEX', imgIndex.value - 1);
     }
     function trunright() {
 
 
-       store.commit('SET_IMGINDEX',imgIndex.value+1);
+      store.commit('SET_IMGINDEX', imgIndex.value + 1);
 
       if (imgIndex.value === images.value.length) {
 
-        store.commit('SET_IMGINDEX',0);
+        store.commit('SET_IMGINDEX', 0);
       }
 
     }
     watch(imgIndex, (n) => {
       show(n);
     });
+
+    const autoplay = ref(false);
+    document.onkeydown = function (e) {
+      // console.log(e)
+      if (e.code === 'ArrowRight') {
+        trunright();
+      } else if (e.code === 'ArrowLeft') {
+        trunleft();
+      } else if (e.code === 'Enter' || e.code === 'Space') {
+        autoplay.value = !autoplay.value;
+
+        const SIT = setInterval(() => {
+          autoplay.value ? trunright() : clearInterval(SIT);
+        }, 1000);
+
+
+
+
+
+      }
+
+    };
+
+
 
     return {
       images,
@@ -154,6 +184,7 @@ export default defineComponent({
       trunleft,
       trunright,
       imagesLength: images.value.length,
+      bigflag,
     };
   },
 });
@@ -172,8 +203,18 @@ body {
 .gbox {
   position: relative;
   width: 100vw;
-  height: 86.5vh;
+
   overflow: hidden;
+  transition: all 0.3s ease;
+}
+.gboxx {
+  height: 86.5vh;
+}
+.biggbox {
+  /* position: absolute; */
+  height: 96.5vh;
+
+  /* background: rgb(23, 25, 27); */
 }
 .gbox .arrowIcon {
   width: 100%;
@@ -228,21 +269,29 @@ body {
   height: 100%;
 }
 .gbox .gsbox .carouselItem img {
-  position:absolute;
-  left: 0; right:0;
+  position: absolute;
+  left: 0;
+  right: 0;
   height: 100%;
   width: auto;
   margin: 0 auto;
 }
 
 .gsmbox {
-  margin-top: 5px;
   width: 100%;
-  height: 10vh;
+
   overflow: auto;
   scroll-behavior: smooth;
+  transition: all 0.3s ease;
 }
-
+.showsmbox {
+  margin-top: 5px;
+  height: 10vh;
+}
+.fadesmbox {
+  margin-top: 0px;
+  height: 1vh;
+}
 /* .gsmbox::-webkit-scrollbar-button{ */
 /* 滚动条上的按钮（箭头） */
 /* width:12px;

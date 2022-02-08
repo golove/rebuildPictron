@@ -7,7 +7,6 @@ const router = useRouter();
 function sendMsg(){
 window.ipcRenderer.send('spiderAll');
  window.ipcRenderer.on('mainMsg',(e,arg)=>{
-  //  console.log(arg.img);
   Data.unshift(arg.img);
     if(arg.Xindex===6&&arg.Yindex===arg.DataLength-1){
       let TM = setTimeout(()=>{
