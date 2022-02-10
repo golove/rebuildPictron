@@ -30,7 +30,7 @@ export default defineComponent({
     },
     items: {
       type: Array,
-      default: () => [{ title: 'new picture', icon: '#star' }, { title: 'my collect', icon: '#heart' }],
+      default: () => [{ title: 'my picture', icon: '#star' }, { title: 'my collect', icon: '#heart' }],
     },
   },
   setup(props, _emit) {

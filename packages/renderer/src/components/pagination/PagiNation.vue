@@ -4,7 +4,6 @@
       v-model:page="page"
       :page-count="pagecount"
       :page-slot="7"
-      show-quick-jumper
     />
     <switchButton @handle="handle" />
   </div>
