@@ -8,9 +8,12 @@ import 'vfonts/Lato.css';
 // 等宽字体
 import 'vfonts/FiraCode.css';
 
-// import mitt from 'mitt'
 import { VueMasonryPlugin } from 'vue-masonry';
+// import mitt from 'mitt';
+// const emitter = mitt();
+
 const app = createApp(App);
+// app.config.globalProperties.emitter = emitter;
 app.use(router)
    .use(store, key)
    .use(VueMasonryPlugin)

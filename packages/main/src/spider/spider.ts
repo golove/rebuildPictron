@@ -1,3 +1,4 @@
+
 import { net } from 'electron';
 import { SqliteDB } from './sqlite';
 const file = 'pictron.db';
@@ -79,24 +80,23 @@ function spider(
   request.on('response', (response) => {
     // console.log('STATUS: '+response.statusCode)
     // console.log('HEADERS: '+ JSON.stringify(response.headers))
+    const buffer:Buffer[]=[];
+
     response.on('data', (chunk) => {
-      if (chunk) {
-        if (flag) {
-          const createTableSql = `CREATE TABLE IF NOT EXISTS ${tableName} (title TEXT,type TEXT, href TEXT,srcs BLOB,star INTEGER,collect NUMERIC,deleted NUMERIC,download NUMERIC);`;
-          sqliteDB.createTable(createTableSql);
-          const hrefs = getHref('' + chunk, n);
-          for (let index = 0; index < hrefs.length; index++) {
-            spider(host + hrefs[index], tableName, false, event, n,Xindex,index,hrefs.length);
-          }
-        } else {
-          getSrc('' + chunk, url, tableName,Xindex, event,Yindex,DataLength);
-        }
-      } else {
-        console.log('request warning');
-      }
+       buffer.push(chunk);
     });
     response.on('end', () => {
-      console.log('NO MORE DATA IN RESPONSE');
+      const buf = Buffer.concat(buffer);
+      if (flag) {
+        const createTableSql = `CREATE TABLE IF NOT EXISTS ${tableName} (title TEXT,type TEXT, href TEXT,srcs BLOB,star INTEGER,collect NUMERIC,deleted NUMERIC,download NUMERIC);`;
+        sqliteDB.createTable(createTableSql);
+        const hrefs = getHref('' + buf, n);
+        for (let index = 0; index < hrefs.length; index++) {
+          spider(host + hrefs[index], tableName, false, event, n,Xindex,index,hrefs.length);
+        }
+      } else {
+        getSrc('' + buf, url, tableName,Xindex, event,Yindex,DataLength);
+      }
     });
   });
   request.end();
@@ -141,7 +141,7 @@ function getSrc(
    star: 0,
    collect: 0,
    delete: 0,
-    download:0,
+  download:0,
   },Xindex,Yindex,DataLength});
   const insertSql = `INSERT INTO ${tableName} VALUES (?,?,?,?,?,?,?,?);`;
   sqliteDB.insertData(insertSql, img);
@@ -154,18 +154,15 @@ export function readImg(
   event: Electron.IpcMainEvent,
 ) {
   let sql='';
-  if(collect){
-    sql = `SELECT * FROM ${tableName} where collect = 1`;
-  }else{
-     sql = `SELECT * FROM ${tableName} LIMIT 24 OFFSET ${(page - 1) * 24}`;
-  }
-  console.log(sql);
+  collect?sql = `SELECT * FROM ${tableName} where collect = 1`:sql = `SELECT * FROM ${tableName} LIMIT 24 OFFSET ${(page - 1) * 24}`;
   sqliteDB.queryData(sql,collect,event);
 }
 
 
-export function updateImg(tableName: string,act: string,href: string,value:boolean,event: Electron.IpcMainEvent){
-  const updateSql = `update ${tableName} set ${act} = ${value} where href = '${href}'`;
-  sqliteDB.executeSql(updateSql,act,event);
-  // console.log(tableName,act,href,event);
+export function updateImg(arg:{act:string,title:string,type:string,href:string,value:number,srcs:string},event: Electron.IpcMainEvent){
+  const updateSql = `update ${arg.type} set ${arg.act} = ${arg.value} where href = '${arg.href}'`;
+  sqliteDB.executeSql(updateSql,arg,event);
 }
+
+
+

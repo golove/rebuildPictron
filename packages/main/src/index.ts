@@ -55,16 +55,12 @@ const createWindow = async () => {
   });
 
   ipcMain.handle('dark-mode:toggle', () => {
-    if (nativeTheme.shouldUseDarkColors) {
-      nativeTheme.themeSource = 'light';
-    } else {
-      nativeTheme.themeSource = 'dark';
-    }
+    nativeTheme.shouldUseDarkColors?nativeTheme.themeSource = 'light': nativeTheme.themeSource = 'dark';
     return nativeTheme.shouldUseDarkColors;
   });
 
-  ipcMain.on('change',(event, arg:{href: string,act:string,value:boolean,tableName:string})=>{
-    updateImg(arg.tableName, arg.act, arg.href,arg.value, event);
+  ipcMain.on('change',(event, arg:{act:string,title:string,type:string,href:string,value:number,srcs:string})=>{
+    updateImg(arg, event);
 
   });
 

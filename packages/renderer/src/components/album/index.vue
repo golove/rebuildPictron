@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { useStore } from '/@/store';
 import { useRouter } from 'vue-router';
 // import { IData } from '/@/type'

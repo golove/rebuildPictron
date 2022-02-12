@@ -1,6 +1,7 @@
 export interface IData{
     title:string,
-    href:Array<string>,
+    href:string,
+    srcs:Array<string>,
     star:number,
     collect: boolean,
     delete: boolean,

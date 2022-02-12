@@ -74,38 +74,6 @@ import { ref, computed, defineComponent, watch } from 'vue';
 import { useStore } from '/@/store';
 // import { useRouter } from 'vue-router';
 export default defineComponent({
-  // props: {
-  //   srcs: {
-  //     type: Array,
-  //     default: () => [
-  //       'https://p221.fijipic.xyz/i/2022/02/02/w51o88.jpg',
-  //       'https://p221.fijipic.xyz/i/2022/02/02/w516uw.jpg',
-  //       'https://p221.fijipic.xyz/i/2022/02/02/w54poc.jpg',
-  //       'https://p221.fijipic.xyz/i/2022/02/02/w5415r.jpg',
-  //       'https://p221.fijipic.xyz/i/2022/02/02/w53vcx.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p6y8du.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p6y4wy.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p6yjf9.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p6yrdk.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p6z0cd.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p6z9ac.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p6zotd.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p6zops.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p6zx5w.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p70cpp.jpg',
-  //       'https://p99.ajpiczs.com/i/2021/10/11/p70kgl.jpg', 'https://p221.fijipic.xyz/i/2022/02/03/swtiix.jpg',
-  //       'https://p221.fijipic.xyz/i/2022/02/03/swtt4n.jpg', 'https://p221.fijipic.xyz/i/2022/02/03/swuzfn.jpg',
-  //       'https://p221.fijipic.xyz/i/2022/02/03/swvruv.jpg', 'https://p221.fijipic.xyz/i/2022/02/03/swxrgy.jpg',
-  //       'https://p221.fijipic.xyz/i/2022/02/03/swya21.jpg', 'https://p221.fijipic.xyz/i/2022/02/03/swz2mi.jpg',
-  //       'https://p221.fijipic.xyz/i/2022/02/03/swztit.jpg', 'https://p221.fijipic.xyz/i/2022/02/03/sx143j.jpg',
-  //       'https://p221.fijipic.xyz/i/2022/02/03/sx1se2.jpg', 'https://p221.fijipic.xyz/i/2022/02/03/sxbb8l.jpg',
-  //       'https://p221.fijipic.xyz/i/2022/02/03/swsb6i.jpg', 'https://p221.fijipic.xyz/i/2022/02/03/814ikvr.jpg'],
-  //   },
-  //   index:{
-  //     type:Number,
-  //     default:0,
-  //   },
-  // },
 
   setup() {
     // const images = computed(() => props.srcs);
@@ -197,22 +165,22 @@ body {
 .galbum {
   position: relative;
   width: auto;
-  height: 100%;
+  height: calc(100vh - 31px);
   background: rgb(23, 25, 27);
 }
 .gbox {
   position: relative;
   width: 100vw;
-
+  height: 100%;
   overflow: hidden;
   transition: all 0.3s ease;
 }
 .gboxx {
-  height: 86.5vh;
+  height: 89%;
 }
 .biggbox {
   /* position: absolute; */
-  height: 96.5vh;
+  height: 99%;
 
   /* background: rgb(23, 25, 27); */
 }
@@ -267,6 +235,7 @@ body {
   position: relative;
   width: 100vw;
   height: 100%;
+  padding: .2rem 0;
 }
 .gbox .gsbox .carouselItem img {
   position: absolute;
@@ -275,6 +244,7 @@ body {
   height: 100%;
   width: auto;
   margin: 0 auto;
+  user-select: none;
 }
 
 .gsmbox {
@@ -286,11 +256,11 @@ body {
 }
 .showsmbox {
   margin-top: 5px;
-  height: 10vh;
+  height: 10%;
 }
 .fadesmbox {
   margin-top: 0px;
-  height: 1vh;
+  height: 1%;
 }
 /* .gsmbox::-webkit-scrollbar-button{ */
 /* 滚动条上的按钮（箭头） */

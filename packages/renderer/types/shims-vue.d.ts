@@ -4,5 +4,8 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>;
   export default component;
 }
+
+declare module 'naive-ui'
+declare module 'mitt'
 declare module 'vue-masonry'
 declare module 'vue-masonry/src/masonry-vue3.plugin'

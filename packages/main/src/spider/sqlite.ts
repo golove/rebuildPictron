@@ -1,5 +1,8 @@
-import { existsSync, openSync } from 'fs';
-
+import { net } from 'electron';
+import { join } from 'path';
+import {writeFile,mkdirSync,existsSync, openSync } from 'fs';
+import { Notification } from 'electron';
+import {homedir} from 'os';
 import sqlite3 from 'sqlite3';
 // eslint-disable-next-line no-var
 var DB = DB || {};
@@ -102,13 +105,25 @@ DB.SqliteDB.prototype.queryData = function (
 
 // const updateSql = 'update beauty set download = 1 where star = 0';
 // sqliteDB.executeSql(updateSql)
-DB.SqliteDB.prototype.executeSql = function (sql: string,act:string,event: Electron.IpcMainEvent) {
-  DB.db.exec(sql, function (err: any) {
+DB.SqliteDB.prototype.executeSql = function (sql: string,arg:{act:string,title:string,type:string,href:string,value:number,srcs:string},event: Electron.IpcMainEvent) {
+ DB.db.exec(sql, function (err: any) {
     if (null != err) {
       DB.printErrorInfo(err);
-      event.sender.send(act+'-reply',false);
+      event.sender.send(arg.act+'-reply',false);
     }else{
-      event.sender.send(act+'-reply',true);
+
+      if(arg.act==='download'&&arg.value){
+        const rootpath = 'Pictures';
+        const picDir = join(homedir(),`${rootpath}/${arg.title}`);
+        mkdirSync(picDir,{ recursive:true });
+        const list = arg.srcs.split(',');
+        const last = list[list.length - 1];
+        list.forEach((url,index)=>{
+          imgDownload(url,index,arg.title,picDir,last,arg.act,event);
+        });
+      }else{
+        event.sender.send(arg.act+'-reply',true);
+      }
     }
   });
 };
@@ -118,3 +133,35 @@ DB.SqliteDB.prototype.close = function () {
 };
 
 export const SqliteDB = DB.SqliteDB;
+
+
+function imgDownload(url:string,index:number,title:string,picDir:string,last:string,act:string,event:Electron.IpcMainEvent){
+  const axios= net.request(url);
+  const ext = url.split('/').pop();
+  axios.on('response',(response)=>{
+    const imgbuffer:Buffer[]=[];
+    response.on('data',(chunk)=>{
+      imgbuffer.push(chunk);
+    });
+    response.on('end',()=>{
+      const newbuff = Buffer.concat(imgbuffer);
+      const base64Img = newbuff.toString('base64');
+      const decodeImg = Buffer.from(base64Img,'base64');
+      writeFile(join(picDir,`${ext}`),decodeImg,(err)=>{
+        if(err)console.log(err);
+        if (url === last) {
+          event.sender.send(act+'-reply',true);
+          showNotification(title, `已完成下载图片保存在${picDir}文件夹`);
+        }
+      });
+      // console.log('NO MORE DATA IN RESPONSE');
+    });
+  });
+  axios.end();
+
+
+}
+function showNotification(title: string, body: string) {
+  new Notification({ title, body }).show();
+}
+

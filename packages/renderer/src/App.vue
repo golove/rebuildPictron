@@ -9,10 +9,8 @@
         <tab-menu />
       </n-layout-header>
       <n-layout
-        ref="content"
         position="absolute"
         style="top: 31px"
-        content-style="padding: 4px;"
         :native-scrollbar="false"
       >
         <router-view />
@@ -26,7 +24,6 @@
 import tabMenu from './components/tabMenu/TabMenu.vue';
 import { defineComponent, ref, computed, watch, onMounted } from 'vue';
 import { darkTheme } from 'naive-ui';
-import type { GlobalThemeOverrides } from 'naive-ui';
 import { useStore } from '/@/store';
 import svgview from './SvgIcon.vue';
 export default defineComponent({
@@ -42,12 +39,16 @@ export default defineComponent({
     const theme: null | unknown = ref(null);
     const themeFlag = computed(() => store.state.darkTheme);
 
-    const themeOverrides: GlobalThemeOverrides = {
+    const themeOverrides = {
       common: {
         primaryColor: '#ff0062FF',
         primaryColorHover: '#FF488EFF',
         primaryColorPressed: '#D90053FF',
         primaryColorSuppl: '#ff0062FF',
+        infoColor:'#a9a9abff',
+        infoColorHover: '#FF488EFF',
+       infoColorPressed: '#D90053FF',
+       infoColorSuppl: '#ff0062FF',
       },
       Button: {
         textColor: '#ff0062FF',
